@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "serveapi": "cd api && node api.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "file-system": "^2.2.2",
+    "mysql": "^2.18.1"
+  }
+}

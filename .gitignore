@@ -1,0 +1,7 @@
+node_modules/
+
+api/config.json
+general.json
+
+*.zip
+bun.lockb
