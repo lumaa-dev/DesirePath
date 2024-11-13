@@ -1,6 +1,9 @@
 const { accessKey } = require("./config.json");
 const { app, pool } = require("../index");
 
+/**@type {{ id: string, url: string }[]} */
+const cache = []
+
 app.get("/api/links", (req, res) => {
 	const auth = req.headers.authorization;
 
@@ -22,21 +25,27 @@ app.get("/api/link", (req, res) => {
 
 	console.log(`getting ${id}`);
 
-	pool.query(
-		"SELECT url FROM links WHERE id = '" + id + "'",
-		(error, results) => {
-			if (error) {
-				console.error(error);
-				res.status(500).send(error);
-			} else {
-				if (results.length > 0) {
-					res.status(200).send(results[0]);
+	const cached = fetchCache(id)
+	if (cached !== null) {
+		res.status(200).send(cached.url);
+	} else {
+		pool.query(
+			"SELECT url FROM links WHERE id = '" + id + "'",
+			(error, results) => {
+				if (error) {
+					console.error(error);
+					res.status(500).send(error);
 				} else {
-					res.status(404).json({error: "Unknown"});
+					if (results.length > 0) {
+						addCache(id, results[0])
+						res.status(200).send(results[0]);
+					} else {
+						res.status(404).json({error: "Unknown"});
+					}
 				}
 			}
-		}
-	);
+		)
+	}
 });
 
 app.post("/api/link", (req, res) => {
@@ -50,6 +59,9 @@ app.post("/api/link", (req, res) => {
 
 	var urlId = typeof id == "string" ? (id.length > 0 ? id.toLowerCase() : generateRandomCode()) : generateRandomCode()
 	console.log(`adding ${urlId}`);
+
+	if (fetchCache(urlId) !== null)
+		return res.status(300).send("ID already used in cache")
 
 	pool.query(
 		`INSERT INTO links (id, url) VALUES ('${urlId}', '${url}')`,
@@ -72,6 +84,7 @@ app.delete("/api/link", (req, res) => {
 		return res.status(401).send("Incorrect Authorization");
 
 	console.log(`deleting ${id}`);
+	removeCache(id)
 
 	pool.query(`DELETE FROM links WHERE id = '${id}'`, (error, _) => {
 		if (error) {
@@ -98,4 +111,26 @@ function generateRandomCode(length = 6) {
     }
 
     return randomCode;
+}
+
+function addCache(id, url) {
+	cache.push({ id, url })
+}
+
+/**
+ * @param {string} id 
+ * @returns {{ id: string; url: string } | null}
+ */
+function fetchCache(id) {
+	let res = cache.filter((tab) => { tab.id == id })
+	return res.length > 0 ? res[0] : null
+}
+
+function removeCache(id) {
+	let res = cache.filter((tab) => { tab.id == id })
+	if (res.length > 0) {
+		let tab = res[0]
+		cache.splice(cache.indexOf(tab), 1)
+		console.log(`Removed /${tab.id} of cache`);
+	}
 }
