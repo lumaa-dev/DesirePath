@@ -2,6 +2,7 @@ const mysql = require("mysql");
 const express = require("express");
 const { api: port, sql } = require("./general.json");
 const { accessKey } = require("./api/config.json");
+const { cache, fetchCache, addCache } = require("./api/api");
 const fs = require("fs");
 
 const listHtmlRep = `<!-- [DP_REPLACE] -->`
@@ -29,7 +30,7 @@ app.all(/^\/(?!api\/).*/, (req, res) => {
 		}
 
 		if (obj["key"] == accessKey) {
-			// supposedly works?
+			// doesn't work
 			pool.query(
 				`SELECT id, url FROM links`,
 				(error, results) => {
@@ -63,25 +64,31 @@ app.all(/^\/(?!api\/).*/, (req, res) => {
 			res.status(200).send(html);
 		}
 	} else {
-		pool.query(
-			`SELECT url FROM links WHERE id = '${urlId}'`,
-			(error, results) => {
-				if (error) {
-					console.error(error);
-					res.status(500).send(error);
-				} else {
-					let first = results[0];
-					if (first) {
-					    res.redirect(first["url"])
+		let cached = fetchCache(urlId);
+		if (cached !== null) {
+			res.redirect(cached.url);
+		} else {
+			pool.query(
+				`SELECT url FROM links WHERE id = '${urlId}'`,
+				(error, results) => {
+					if (error) {
+						console.error(error);
+						res.status(500).send(error);
 					} else {
-						let html = fs.readFileSync(`${__dirname}/link/nothing.html`, {
-							encoding: "utf-8",
-						});
-						res.status(200).send(html);
+						let first = results[0];
+						if (first) {
+							addCache(urlId, first["url"]);
+							res.redirect(first["url"]);
+						} else {
+							let html = fs.readFileSync(`${__dirname}/link/nothing.html`, {
+								encoding: "utf-8",
+							});
+							res.status(200).send(html);
+						}
 					}
 				}
-			}
-		);
+			);
+		}
 	}
 });
 
