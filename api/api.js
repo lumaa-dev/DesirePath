@@ -134,3 +134,5 @@ function removeCache(id) {
 		console.log(`Removed /${tab.id} of cache`);
 	}
 }
+
+module.exports = { cache, fetchCache, addCache }

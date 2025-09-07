@@ -3,6 +3,12 @@ Desire Path is a project that serves as a link shortener, developed using NodeJS
 
 Before filling a new GitHub issue, please see if it isn't already mentionned in the [Issues](#issues) section.
 
+## Cache
+This link shortener contains a cache, it is unaccessible directly but, the cache adds a redirection when the API calls one or when someone gets redirected.\
+If your database does not work or crashes, the cache will take the torch, and redirect the users to the cached link.
+
+The cache gets cleared when this program stops or crashes.
+
 ## API
 Desire Path also provides a small but leverageable API for a remote access to the database. Most of the request need to use the Authorization used in the [config.json](./api/config_TEMPLATE.json) file, except the [GET /api/link](#get-apilink) request.
 
