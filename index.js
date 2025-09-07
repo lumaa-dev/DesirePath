@@ -1,4 +1,4 @@
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const express = require("express");
 const { api: port, sql } = require("./general.json");
 const { accessKey } = require("./api/config.json");
