@@ -2,7 +2,7 @@ const mysql = require("mysql2");
 const express = require("express");
 const { api: port, sql } = require("./general.json");
 const { accessKey } = require("./api/config.json");
-const { cache, fetchCache, addCache } = require("./api/api");
+const { fetchCache, addCache } = require("./api/api");
 const fs = require("fs");
 
 const listHtmlRep = `<!-- [DP_REPLACE] -->`
