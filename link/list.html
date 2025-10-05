@@ -14,18 +14,28 @@
             background: #000;
             color: #fff;
             font-family: sans-serif;
+            width: 100vw;
+            overflow: hidden scroll !important;
         }
 
         h1 {
             font-size: 3vw;
+            padding-bottom: 2vh;
+            font-size: 3em;
         }
 
-        p {
-            font-size: 1.75vw;
+        p, a {
+            font-size: 1.2em;
         }
 
         .links {
             padding: 1vw;
+        }
+
+        .link {
+            display: flex;
+            gap: 20px;
+            font-family: monospace;
         }
 
         p.id {
@@ -35,6 +45,8 @@
         a {
             color: rgb(63, 127, 211);
             text-decoration: underline;
+            word-wrap: anywhere;
+            width: 80vw;
         }
     </style>
 </head>

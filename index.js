@@ -36,27 +36,26 @@ app.all(/^\/(?!api\/).*/, (req, res) => {
 				(error, results) => {
 					if (error) {
 						console.error(error);
-						res.status(500).send(error);
+						return res.status(500).send(error);
 					} else {
 						if (results.length < 1) {
 							let html = fs.readFileSync(`${__dirname}/link/nothing.html`, {
 								encoding: "utf-8",
 							});
-							res.status(200).send(html);
+							return res.status(200).send(html);
 						} else {
 							let html = fs.readFileSync(`${__dirname}/link/list.html`, {
 								encoding: "utf-8",
 							});
 							
 							const htmlList = results.map((reslt) => listElm(reslt.id, reslt.url))
-							html.replace(listHtmlRep, htmlList.joined("\n"))
+							html = html.replace(listHtmlRep, htmlList.join("\n"))
 							
-							res.status(200).send(html);
+							return res.status(200).send(html);
 						}
 					}
 				}
 			);
-			res.status(200).send(html);
 		} else {
 			let html = fs.readFileSync(`${__dirname}/link/nothing.html`, {
 				encoding: "utf-8",
@@ -93,9 +92,7 @@ app.all(/^\/(?!api\/).*/, (req, res) => {
 });
 
 function listElm(id, url) {
-	let html = ```
-	<span class="link"><p class="id">${id}</p><p> | </p><a href="${url}">${url}</a></span>
-	```
+	let html = `<span class="link"><p class="id">${id}</p><p> | </p><a href="${url}">${url}</a></span>`
 
 	return html
 }
